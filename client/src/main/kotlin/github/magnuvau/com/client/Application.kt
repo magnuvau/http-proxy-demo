@@ -20,6 +20,7 @@ fun rest(path: String) : HttpResponse {
         engine {
             proxy = ProxyBuilder.http("http://localhost:8082/")
         }
+        expectSuccess = false
     }
 
     val response = runBlocking {

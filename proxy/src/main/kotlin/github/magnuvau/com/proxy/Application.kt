@@ -5,6 +5,7 @@ import io.ktor.client.*
 import io.ktor.client.engine.apache.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.request.*
 import io.ktor.response.*
@@ -21,7 +22,10 @@ fun main() {
         }
 
         module {
-            val httpClient = HttpClient(Apache)
+            val httpClient = HttpClient(Apache) {
+                expectSuccess = false
+            }
+
             intercept(ApplicationCallPipeline.Setup) {
 
                 val channel: ByteReadChannel = call.request.receiveChannel()
@@ -39,6 +43,9 @@ fun main() {
 
                 call.respond(
                     object : OutgoingContent.WriteChannelContent() {
+
+                        override val status: HttpStatusCode get() = response.status
+
                         override suspend fun writeTo(channel: ByteWriteChannel) {
                             response.content.copyAndClose(channel)
                         }

@@ -6,10 +6,18 @@ import io.ktor.server.testing.*
 
 class ApplicationTest {
     @Test
-    fun testRoot() {
+    fun hello() {
         withApplication {
             val response = rest("hello")
             assertEquals(HttpStatusCode.OK, response.status)
+        }
+    }
+
+    @Test
+    fun bad() {
+        withApplication {
+            val response = rest("bad")
+            assertEquals(HttpStatusCode.InternalServerError, response.status)
         }
     }
 }
