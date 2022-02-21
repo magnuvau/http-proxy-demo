@@ -9,18 +9,20 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 
 fun main() {
+
     embeddedServer(Netty, port = 8083) {
 
         routing {
+
             get("/hello") {
-                println("Request from ${call.request.uri}")
-                call.respond("Hello, world!")
+                log.info("Request to ${call.request.uri}")
+                call.respond(HttpStatusCode.OK, "Hello, world!")
             }
 
             get("/bad") {
+                log.info("Request to ${call.request.uri}")
                 call.respond(HttpStatusCode.InternalServerError, "Error!")
             }
         }
-
     }.start(wait = true)
 }

@@ -14,6 +14,7 @@ import io.ktor.server.netty.*
 import io.ktor.utils.io.*
 
 fun main() {
+
     embeddedServer(Netty, applicationEngineEnvironment {
 
         connector {
@@ -22,6 +23,7 @@ fun main() {
         }
 
         module {
+
             val httpClient = HttpClient(Apache) {
                 expectSuccess = false
             }
@@ -33,13 +35,13 @@ fun main() {
                 val byteArray = ByteArray(size)
                 channel.readFully(byteArray)
 
-                println("Forwarding request to ${call.request.uri}")
+                log.info("Request to ${call.request.uri}")
 
                 val response = httpClient.request<HttpResponse>(call.request.uri) {
                     method = call.request.httpMethod
                 }
 
-                println("Response from server: ${response.readText()}")
+                log.info("Response from server: ${response.status} - ${response.readText()}")
 
                 call.respond(
                     object : OutgoingContent.WriteChannelContent() {
