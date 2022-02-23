@@ -1,8 +1,10 @@
 package github.magnuvau.com.client
 
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlin.test.*
 import io.ktor.server.testing.*
+import kotlinx.coroutines.runBlocking
 
 class ApplicationTest {
     @Test
@@ -18,6 +20,17 @@ class ApplicationTest {
         withApplication {
             val response = rest("bad")
             assertEquals(HttpStatusCode.InternalServerError, response.status)
+        }
+    }
+
+    @Test
+    fun name() {
+        withApplication {
+            val response = name("name")
+            assertEquals(HttpStatusCode.OK, response.status)
+            runBlocking {
+                assertEquals("Hello, Slim Shady!", response.readText())
+            }
         }
     }
 }

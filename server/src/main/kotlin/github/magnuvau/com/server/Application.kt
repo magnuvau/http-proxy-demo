@@ -23,6 +23,11 @@ fun main() {
                 log.info("Request to ${call.request.uri}")
                 call.respond(HttpStatusCode.InternalServerError, "Error!")
             }
+
+            post("/name") {
+                val name = call.request.headers["name"] ?: "unknown"
+                call.respond("Hello, $name!")
+            }
         }
     }.start(wait = true)
 }

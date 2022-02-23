@@ -39,6 +39,7 @@ fun main() {
 
                 val response = httpClient.request<HttpResponse>(call.request.uri) {
                     method = call.request.httpMethod
+                    headers { call.request.headers }
                 }
 
                 log.info("Response from server: ${response.status} - ${response.readText()}")
@@ -47,6 +48,8 @@ fun main() {
                     object : OutgoingContent.WriteChannelContent() {
 
                         override val status: HttpStatusCode get() = response.status
+
+                        override val headers: Headers get() = response.headers
 
                         override suspend fun writeTo(channel: ByteWriteChannel) {
                             response.content.copyAndClose(channel)

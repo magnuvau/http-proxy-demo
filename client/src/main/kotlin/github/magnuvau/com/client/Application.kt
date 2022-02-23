@@ -31,3 +31,24 @@ fun rest(path: String) : HttpResponse {
 
     return response
 }
+
+fun name(path: String) : HttpResponse {
+    val httpClient = HttpClient(Apache) {
+        engine {
+            proxy = ProxyBuilder.http("http://localhost:8082/")
+        }
+        expectSuccess = false
+    }
+
+    val response = runBlocking {
+        httpClient.post<HttpResponse>("http://localhost:8083/$path") {
+            headers {
+                header("name", "Slim Shady")
+            }
+        }
+    }
+
+    httpClient.close()
+
+    return response
+}
