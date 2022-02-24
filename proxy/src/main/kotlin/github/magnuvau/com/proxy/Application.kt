@@ -11,6 +11,7 @@ import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import io.ktor.util.*
 import io.ktor.utils.io.*
 
 fun main() {
@@ -49,7 +50,11 @@ fun main() {
 
                         override val status: HttpStatusCode get() = response.status
 
-                        override val headers: Headers get() = response.headers
+                        override val headers: Headers get() = Headers.build {
+                            response.headers.toMap().filter {
+                                it.key != HttpHeaders.ContentType && it.key != HttpHeaders.ContentLength
+                            }
+                        }
 
                         override val contentLength: Long? = response.headers[HttpHeaders.ContentLength]?.toLong()
 
