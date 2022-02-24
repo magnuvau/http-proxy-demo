@@ -7,15 +7,20 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import kotlinx.coroutines.runBlocking
 
-fun main() {
-    val response = rest("hello")
+fun main(args: Array<String>) {
+    val greetResponse = greet()
+    val introduceResponse = introduce(args.first())
+
     runBlocking {
-        println("Response: ${response.status} - ${response.readText()}")
+        println("Hello!")
+        println(greetResponse.readText())
+
+        println("My name is ${args.first()}!")
+        println(introduceResponse.readText())
     }
-    Thread.sleep(1000)
 }
 
-fun rest(path: String) : HttpResponse {
+fun greet() : HttpResponse {
     val httpClient = HttpClient(Apache) {
         engine {
             proxy = ProxyBuilder.http("http://localhost:8082/")
@@ -24,7 +29,7 @@ fun rest(path: String) : HttpResponse {
     }
 
     val response = runBlocking {
-        httpClient.get<HttpResponse>("http://localhost:8083/$path")
+        httpClient.get<HttpResponse>("http://localhost:8083/greet")
     }
 
     httpClient.close()
@@ -32,7 +37,7 @@ fun rest(path: String) : HttpResponse {
     return response
 }
 
-fun name(path: String) : HttpResponse {
+fun introduce(name: String) : HttpResponse {
     val httpClient = HttpClient(Apache) {
         engine {
             proxy = ProxyBuilder.http("http://localhost:8082/")
@@ -41,9 +46,9 @@ fun name(path: String) : HttpResponse {
     }
 
     val response = runBlocking {
-        httpClient.post<HttpResponse>("http://localhost:8083/$path") {
+        httpClient.post<HttpResponse>("http://localhost:8083/introduce") {
             headers {
-                header("name", "Slim Shady")
+                header("name", name)
             }
         }
     }

@@ -14,19 +14,19 @@ fun main() {
 
         routing {
 
-            get("/hello") {
+            get("/greet") {
                 log.info("Request to ${call.request.uri}")
-                call.respond(HttpStatusCode.OK, "Hello, world!")
+                call.respond(HttpStatusCode.OK, "Hello there, what's your name?")
             }
 
-            get("/bad") {
+            post("/introduce") {
                 log.info("Request to ${call.request.uri}")
-                call.respond(HttpStatusCode.InternalServerError, "Error!")
-            }
 
-            post("/name") {
-                val name = call.request.headers["name"] ?: "unknown"
-                call.respond("Hello, $name!")
+                if (!call.request.headers.contains("name")) {
+                    call.respond(HttpStatusCode.BadRequest, "I'm sorry?")
+                }
+
+                call.respond(HttpStatusCode.OK, "Hello, ${call.request.headers["name"]}!")
             }
         }
     }.start(wait = true)

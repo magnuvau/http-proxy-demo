@@ -28,7 +28,7 @@ fun main() {
                 expectSuccess = false
             }
 
-            intercept(ApplicationCallPipeline.Setup) {
+            intercept(ApplicationCallPipeline.Call) {
 
                 val channel: ByteReadChannel = call.request.receiveChannel()
                 val size = channel.availableForRead
@@ -50,6 +50,10 @@ fun main() {
                         override val status: HttpStatusCode get() = response.status
 
                         override val headers: Headers get() = response.headers
+
+                        override val contentLength: Long? = response.headers[HttpHeaders.ContentLength]?.toLong()
+
+                        override val contentType: ContentType? = response.headers[HttpHeaders.ContentType]?.let { ContentType.parse(it) }
 
                         override suspend fun writeTo(channel: ByteWriteChannel) {
                             response.content.copyAndClose(channel)
