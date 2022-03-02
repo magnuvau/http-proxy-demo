@@ -2,32 +2,54 @@ package github.magnuvau.com.server
 
 import io.ktor.application.*
 import io.ktor.http.*
+import io.ktor.network.tls.certificates.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import java.io.File
 
 fun main() {
 
-    embeddedServer(Netty, port = 8083) {
+    embeddedServer(Netty, applicationEngineEnvironment {
 
-        routing {
+        val keyStoreFile = File("src/main/resources/keystore.jks")
+        val keystore = generateCertificate(
+            file = keyStoreFile,
+            keyAlias = "serverKeystore",
+            keyPassword = "password1234",
+            jksPassword = "password1234"
+        )
 
-            get("/greet") {
-                log.info("Request to ${call.request.uri}")
-                call.respond(HttpStatusCode.OK, "Hello there, what's your name?")
-            }
+        sslConnector(
+            keyStore = keystore,
+            keyAlias = "serverKeystore",
+            keyStorePassword = { "password1234".toCharArray() },
+            privateKeyPassword = { "password1234".toCharArray() }) {
+            port = 8083
+            keyStorePath = keyStoreFile
+        }
 
-            post("/introduce") {
-                log.info("Request to ${call.request.uri}")
+        module {
 
-                if (!call.request.headers.contains("name")) {
-                    call.respond(HttpStatusCode.BadRequest, "I'm sorry?")
+            routing {
+
+                get("/greet") {
+                    log.info("Request to ${call.request.uri}")
+                    call.respond(HttpStatusCode.OK, "Hello there, what's your name?")
                 }
 
-                call.respond(HttpStatusCode.OK, "Hello, ${call.request.headers["name"]}!")
+                post("/introduce") {
+                    log.info("Request to ${call.request.uri}")
+
+                    if (!call.request.headers.contains("name")) {
+                        call.respond(HttpStatusCode.BadRequest, "I'm sorry?")
+                    }
+
+                    call.respond(HttpStatusCode.OK, "Hello, ${call.request.headers["name"]}!")
+                }
             }
         }
-    }.start(wait = true)
+    }).start(wait = true)
 }
